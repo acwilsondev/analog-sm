@@ -5,9 +5,10 @@
 1. `cp .env.example .env`
 2. Fill production secrets and instance name.
 3. `docker compose -f docker-compose.prod.yml up --build -d`
-4. `curl -fsS http://localhost:3000/ready`
+4. Confirm bucket init job finished: `docker compose -f docker-compose.prod.yml logs minio-init`
+5. `curl -fsS http://localhost:3000/ready`
 
-Expected output: HTTP 200 with `{ "status": "ready" }`.
+Expected output: `minio-init` logs contain `bucket ready`, and `/ready` returns HTTP 200 with `{ "status": "ready" }`.
 
 ## Upgrade procedure
 
@@ -42,5 +43,5 @@ No manual SQL commands are required.
 
 - `/health` failing: app process is unhealthy. Restart app container and inspect app logs.
 - `/ready` failing with DB issue: verify postgres container health and credentials.
-- `/ready` failing with storage issue: verify minio health, bucket existence, and S3 credentials.
+- `/ready` failing with storage issue: verify minio health and S3 credentials, then rerun bucket init with `docker compose -f docker-compose.prod.yml run --rm minio-init`.
 - Restore needed: run restore workflow against clean volumes.

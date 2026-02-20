@@ -7,6 +7,8 @@ This repository now contains a deployable EPIC 0 foundation for Analog with expl
 ```bash
 cp .env.example .env
 docker compose up --build -d
+# Optional: inspect one-time bucket init logs
+docker compose logs minio-init
 curl http://localhost:3000/health
 curl http://localhost:3000/ready
 ```
@@ -39,7 +41,7 @@ npm run create-admin -- admin@example.com "$ADMIN_BOOTSTRAP_TOKEN"
 - Local/dev: `docker compose up`
 - Production: `docker compose -f docker-compose.prod.yml up -d`
 
-Both variants define durable volumes for Postgres + media and use restart policies.
+Both variants define durable volumes for Postgres + media and use restart policies. A one-shot `minio-init` job now runs automatically during startup to upsert the configured media bucket (`S3_BUCKET`).
 
 ## Health endpoints
 
@@ -55,3 +57,10 @@ Responses are intentionally minimal and non-sensitive.
 - For destructive schema changes, restore-from-backup is the rollback strategy.
 
 See `docs/ops.md` for operational runbook details.
+
+
+If you need to re-run bucket provisioning manually:
+
+```bash
+docker compose run --rm minio-init
+```
