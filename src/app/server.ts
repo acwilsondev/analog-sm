@@ -17,11 +17,11 @@ app.get("/ready", async (_req, res) => {
   ]);
 
   if (!dbReady || !storageReady) {
-    res.status(503).json({ status: "not_ready" });
+    res.status(503).json({ status: "not_ready", details: { dbReady, storageReady } });
     return;
   }
 
-  res.status(200).json({ status: "ready" });
+  res.status(200).json({ status: "ready", details: { dbReady, storageReady }});
 });
 
 app.listen(cfg.PORT, () => {
