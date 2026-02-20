@@ -19,7 +19,7 @@ Create first admin (one-time bootstrap token):
 npm run create-admin -- admin@example.com "replace-with-long-random-token"
 ```
 
-This command is executed inside the running `app` container automatically, so it can be run directly from the host CLI.
+This command is executed inside a running `app` container automatically, so it can be run directly from the host CLI even when the container was started from a different compose context.
 
 ## Scripts
 
