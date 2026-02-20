@@ -12,9 +12,9 @@
     "test": "node --test",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
-    "db:migrate": "prisma migrate deploy",
-    "db:migrate:dev": "prisma migrate dev",
-    "create-admin": "tsx scripts/create-admin.ts",
+    "db:migrate": "bash scripts/exec-in-app.sh prisma migrate deploy",
+    "db:migrate:dev": "bash scripts/exec-in-app.sh prisma migrate dev",
+    "create-admin": "bash scripts/exec-in-app.sh tsx scripts/create-admin.ts",
     "backup": "bash scripts/backup.sh",
     "restore": "bash scripts/restore.sh",
     "backup:validate": "bash scripts/backup-restore-validate.sh"
