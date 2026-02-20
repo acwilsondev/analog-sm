@@ -16,8 +16,10 @@ curl http://localhost:3000/ready
 Create first admin (one-time bootstrap token):
 
 ```bash
-npm run create-admin -- admin@example.com "$ADMIN_BOOTSTRAP_TOKEN"
+docker compose exec minio_1 npm run create-admin -- admin@example.com "replace-with-long-random-token```
 ```
+
+TODO: this should be runnable from the host machine.
 
 ## Scripts
 
