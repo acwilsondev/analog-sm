@@ -1,5 +1,6 @@
 services:
   app:
+    image: analog-sm-app
     build:
       context: .
     env_file:
