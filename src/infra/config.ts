@@ -19,7 +19,13 @@ const envSchema = z.object({
   S3_ACCESS_KEY: z.string().min(1),
   S3_SECRET_KEY: z.string().min(1),
   S3_BUCKET: z.string().min(1),
-  ADMIN_BOOTSTRAP_TOKEN: z.string().min(16)
+  ADMIN_BOOTSTRAP_TOKEN: z.string().min(16),
+  AUTH_SECRET: z.string().min(32),
+  EMAIL_SERVER_HOST: z.string().optional(),
+  EMAIL_SERVER_PORT: z.coerce.number().optional(),
+  EMAIL_SERVER_USER: z.string().optional(),
+  EMAIL_SERVER_PASSWORD: z.string().optional(),
+  EMAIL_FROM: z.string().email().optional(),
 });
 
 export type AppConfig = z.infer<typeof envSchema>;

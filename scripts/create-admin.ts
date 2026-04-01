@@ -28,7 +28,7 @@ const main = async (): Promise<void> => {
     }
 
     await client.query(
-      'INSERT INTO "Member" (id, email, role, "createdAt") VALUES ($1, $2, $3, NOW())',
+      'INSERT INTO "User" (id, email, role, "createdAt") VALUES ($1, $2, $3, NOW())',
       [crypto.randomUUID(), email, "admin"]
     );
     await client.query(

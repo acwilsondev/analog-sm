@@ -27,9 +27,9 @@ This command is executed inside a running `app` container automatically, so it c
 - `npm run typecheck`
 - `npm run test`
 - `npm run format`
-- `npm run backup`
-- `npm run restore -- <backup-path>`
-- `npm run backup:validate`
+- `npm run backup` (requires `pg_dump` and `mc` on host)
+- `npm run restore -- <backup-path>` (requires `psql` and `mc` on host)
+- `npm run backup:validate` (requires `pg_dump`, `psql`, and `mc` on host)
 
 ## Environment and secrets
 
