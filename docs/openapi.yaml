@@ -1,0 +1,167 @@
+openapi: 3.0.3
+info:
+  title: Analog API
+  description: Private, durable, portable social archive for communities.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+  /ready:
+    get:
+      summary: Readiness check
+      description: Verifies DB and Storage connectivity.
+      responses:
+        '200':
+          description: Ready
+        '503':
+          description: Not Ready
+
+  /api/me:
+    get:
+      summary: Get current authenticated member
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Member profile
+        '401':
+          description: Unauthorized
+
+  /api/entries:
+    get:
+      summary: List entries (Timeline)
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Paginated entries
+    post:
+      summary: Create a new entry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content: { type: string }
+                tags: { type: array, items: { type: string } }
+                collectionIds: { type: array, items: { type: string } }
+      responses:
+        '201':
+          description: Entry created
+
+  /api/entries/{id}:
+    patch:
+      summary: Edit an entry (creates new revision)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content: { type: string }
+                tags: { type: array, items: { type: string } }
+      responses:
+        '200':
+          description: Revision created
+    delete:
+      summary: Tombstone an entry (soft-delete)
+      responses:
+        '200':
+          description: Entry tombstoned
+
+  /api/search:
+    get:
+      summary: Keyword search across entries
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Matching entries
+
+  /api/media/upload/init:
+    post:
+      summary: Initialize a media upload
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fileName, fileSize, mimeType]
+              properties:
+                fileName: { type: string }
+                fileSize: { type: integer }
+                mimeType: { type: string }
+      responses:
+        '200':
+          description: Presigned S3 URL and Media ID
+
+  /api/media/upload/complete:
+    post:
+      summary: Finalize a media upload
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mediaId]
+              properties:
+                mediaId: { type: string }
+                revisionId: { type: string, description: "Optional: attach to revision immediately" }
+      responses:
+        '200':
+          description: Media ready
+
+  /api/archive/timeline:
+    get:
+      summary: Get timeline counts by year/month
+      responses:
+        '200':
+          description: Summary list
+
+  /api/archive/on-this-day:
+    get:
+      summary: Resurface entries from same day in previous years
+      responses:
+        '200':
+          description: Historical entries
+
+  /api/admin/metrics:
+    get:
+      summary: System metrics (Admin only)
+      responses:
+        '200':
+          description: Usage stats
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: authjs.session-token

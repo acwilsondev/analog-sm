@@ -16,8 +16,10 @@ curl http://localhost:3000/ready
 Create first admin (one-time bootstrap token):
 
 ```bash
-npm run create-admin -- admin@example.com "$ADMIN_BOOTSTRAP_TOKEN"
+npm run create-admin -- admin@example.com "replace-with-long-random-token"
 ```
+
+This command is executed inside a running `app` container automatically, so it can be run directly from the host CLI even when the container was started from a different compose context.
 
 ## Scripts
 
@@ -25,9 +27,9 @@ npm run create-admin -- admin@example.com "$ADMIN_BOOTSTRAP_TOKEN"
 - `npm run typecheck`
 - `npm run test`
 - `npm run format`
-- `npm run backup`
-- `npm run restore -- <backup-path>`
-- `npm run backup:validate`
+- `npm run backup` (requires `pg_dump` and `mc` on host)
+- `npm run restore -- <backup-path>` (requires `psql` and `mc` on host)
+- `npm run backup:validate` (requires `pg_dump`, `psql`, and `mc` on host)
 
 ## Environment and secrets
 

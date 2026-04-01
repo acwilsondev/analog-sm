@@ -1,5 +1,6 @@
 services:
   app:
+    image: analog-sm-app
     build:
       context: .
     env_file:
@@ -14,7 +15,7 @@ services:
     ports:
       - "3000:3000"
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/ready"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/ready"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -27,6 +28,8 @@ services:
       POSTGRES_USER: analog
       POSTGRES_PASSWORD: analog
       POSTGRES_DB: analog
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
