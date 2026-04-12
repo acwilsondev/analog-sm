@@ -1,0 +1,256 @@
+openapi: 3.0.3
+info:
+  title: Analog SM API
+  description: |
+    OpenAPI specification for Analog SM, a self-hostable Indie social media platform.
+    While the primary implementation uses Next.js Server Actions, this spec defines the 
+    underlying data contracts and logical endpoints.
+  version: 1.0.0
+servers:
+  - url: /api
+    description: Internal API prefix
+
+paths:
+  /posts:
+    get:
+      summary: Get the temporal timeline
+      description: Returns a reverse-chronological list of posts from the user's friends.
+      responses:
+        '200':
+          description: A list of posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+    post:
+      summary: Create a new post
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreatePostInput'
+      responses:
+        '201':
+          description: Post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /posts/{postId}:
+    delete:
+      summary: Delete a post
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Post deleted
+        '403':
+          description: Forbidden - User does not own this post
+
+  /friends/requests:
+    post:
+      summary: Send a friend request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                targetUserId:
+                  type: string
+      responses:
+        '200':
+          description: Request sent
+        '400':
+          description: Invalid request (e.g., friending self)
+
+  /friends/requests/{requestId}/accept:
+    post:
+      summary: Accept a friend request
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Friendship established
+
+  /friends/requests/{requestId}/reject:
+    post:
+      summary: Reject a friend request
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request rejected
+
+  /profile:
+    get:
+      summary: Get current user profile
+      responses:
+        '200':
+          description: User profile data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+    patch:
+      summary: Update profile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileInput'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+
+  /users/search:
+    get:
+      summary: Search for users
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of matching users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserProfile'
+
+components:
+  schemas:
+    Post:
+      type: object
+      required:
+        - id
+        - authorId
+        - authorName
+        - content
+        - type
+        - createdAt
+      properties:
+        id:
+          type: string
+        authorId:
+          type: string
+        authorName:
+          type: string
+        authorAvatar:
+          type: string
+          format: uri
+        content:
+          type: string
+        type:
+          type: string
+          enum: [TEXT, PHOTO_SET]
+        mediaUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+        createdAt:
+          type: string
+          format: date-time
+      discriminator:
+        propertyName: type
+        mapping:
+          TEXT: '#/components/schemas/Post'
+          PHOTO_SET: '#/components/schemas/Post'
+
+    CreatePostInput:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        media:
+          type: array
+          maxItems: 10
+          items:
+            type: string
+            format: binary
+
+    UserProfile:
+      type: object
+      required:
+        - id
+        - username
+        - isFriend
+        - friendshipStatus
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        bio:
+          type: string
+          maxLength: 160
+        avatarUrl:
+          type: string
+          format: uri
+        isFriend:
+          type: boolean
+        friendshipStatus:
+          type: string
+          enum: [NONE, PENDING, ACCEPTED]
+
+    UpdateProfileInput:
+      type: object
+      properties:
+        bio:
+          type: string
+          maxLength: 160
+        avatar:
+          type: string
+          format: binary
+
+  responses:
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+              fieldErrors:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
