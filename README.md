@@ -1,6 +1,6 @@
 # Analog SM
 
-**Analog SM** (Analog Social Media) is a self-hostable, indie social network inspired by the early days of MySpace. It prioritizes simplicity, a strictly temporal timeline, and intentional connectivity for small groups (1-10 people).
+**Analog SM** (Analog Social Media) is a self-hostable, indie social network inspired by the early days of Twitter. It prioritizes simplicity, a strictly temporal timeline, and intentional connectivity for small groups (1-10 people).
 
 ---
 
