@@ -29,7 +29,10 @@ export async function getFriends(userId: string) {
     },
   });
 
-  return friendships.map(f => f.requesterId === userId ? f.receiver : f.requester);
+  const seen = new Set<string>();
+  return friendships
+    .map(f => f.requesterId === userId ? f.receiver : f.requester)
+    .filter(u => { if (seen.has(u.id)) return false; seen.add(u.id); return true; });
 }
 
 export async function getPendingRequests(userId: string) {

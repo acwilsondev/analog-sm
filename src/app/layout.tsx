@@ -23,7 +23,8 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id as string | undefined;
   const username = session?.user?.name;
-  const isAdmin = (session?.user as any)?.role === 'ADMIN';
+  const userRole = (session?.user as any)?.role as string | undefined;
+  const isAdmin = userRole === 'ADMIN' || userRole === 'OWNER';
 
   return (
     <html lang="en" suppressHydrationWarning>

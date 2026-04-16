@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
   const role = (session?.user as any)?.role;
-  if (role !== 'ADMIN') redirect('/');
+  if (role !== 'ADMIN' && role !== 'OWNER') redirect('/');
 
   const [users, registrationSetting] = await Promise.all([
     prisma.user.findMany({
@@ -46,6 +46,7 @@ export default async function AdminPage() {
                   key={user.id}
                   user={user}
                   currentUserId={(session!.user as any).id}
+                  viewerRole={role}
                 />
               ))}
             </tbody>

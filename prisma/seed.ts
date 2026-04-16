@@ -9,12 +9,12 @@ async function main() {
   // Users
   const alice = await prisma.user.upsert({
     where: { email: 'alice@example.com' },
-    update: { role: 'ADMIN' },
+    update: { role: 'OWNER' },
     create: {
       username: 'alice',
       email: 'alice@example.com',
       passwordHash,
-      role: 'ADMIN',
+      role: 'OWNER',
       bio: 'Alice from Wonderland 🐇',
     },
   });
@@ -120,6 +120,15 @@ async function main() {
     { authorId: alice.id, content: 'Reminder that the instance rules are in the about page. Be excellent to each other.' },
   ];
 
+  // Remove any duplicate/reverse friendship rows before re-seeding
+  await prisma.friendship.deleteMany({
+    where: {
+      OR: [
+        { requesterId: eve.id, receiverId: alice.id },
+      ],
+    },
+  });
+
   // Delete existing posts to avoid duplicates on re-seed
   await prisma.post.deleteMany({
     where: { authorId: { in: [alice.id, bob.id, charlie.id, diana.id, eve.id] } },
@@ -130,7 +139,7 @@ async function main() {
   }
 
   console.log('Seeded: 5 users, 7 friendships, 38 posts');
-  console.log('  alice@example.com  — ADMIN');
+  console.log('  alice@example.com  — OWNER');
   console.log('  bob@example.com    — USER');
   console.log('  charlie@example.com — USER');
   console.log('  diana@example.com  — USER');
