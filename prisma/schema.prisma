@@ -15,11 +15,17 @@ model User {
   passwordHash  String
   bio           String?
   avatarUrl     String?
+  role          Role      @default(USER)
   posts         Post[]
   sentRequests     Friendship[] @relation("SentRequests")
   receivedRequests Friendship[] @relation("ReceivedRequests")
 
   @@index([username])
+}
+
+model GlobalSetting {
+  key   String @id
+  value String
 }
 
 model Post {
@@ -63,4 +69,9 @@ enum PostType {
   TEXT
   PHOTO
   PHOTO_SET
+}
+
+enum Role {
+  USER
+  ADMIN
 }

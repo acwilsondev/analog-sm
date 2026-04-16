@@ -15,8 +15,16 @@ export const getPostById = async (id: string): Promise<Post | null> => {
   return mapPrismaPostToCore(post);
 };
 
-export const getFriendTimeline = async (userId: string): Promise<Post[]> => {
-  // 1. Get friend IDs
+export interface TimelinePage {
+  posts: Post[];
+  nextCursor: string | null;
+}
+
+export const getFriendTimeline = async (
+  userId: string,
+  cursor?: string,
+  limit = 20
+): Promise<TimelinePage> => {
   const friendships = await prisma.friendship.findMany({
     where: {
       OR: [
@@ -26,23 +34,29 @@ export const getFriendTimeline = async (userId: string): Promise<Post[]> => {
     },
   });
 
-  const friendIds = friendships.map(f => f.requesterId === userId ? f.receiverId : f.requesterId);
-  // Include self posts too
+  const friendIds = friendships.map(f =>
+    f.requesterId === userId ? f.receiverId : f.requesterId
+  );
   friendIds.push(userId);
 
-  // 2. Fetch posts from those friends
   const posts = await prisma.post.findMany({
-    where: {
-      authorId: { in: friendIds },
-    },
+    where: { authorId: { in: friendIds } },
     include: {
       author: true,
       media: { orderBy: { order: 'asc' } },
     },
     orderBy: { createdAt: 'desc' },
+    take: limit + 1,
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
   });
 
-  return posts.map(mapPrismaPostToCore);
+  const hasMore = posts.length > limit;
+  const page = hasMore ? posts.slice(0, limit) : posts;
+
+  return {
+    posts: page.map(mapPrismaPostToCore),
+    nextCursor: hasMore ? page[page.length - 1].id : null,
+  };
 };
 
 // Internal mapper

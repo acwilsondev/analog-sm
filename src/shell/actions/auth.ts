@@ -24,6 +24,11 @@ export async function registerAction(
   }
 
   try {
+    const regSetting = await prisma.globalSetting.findUnique({ where: { key: 'registrations_open' } });
+    if (regSetting?.value === 'false') {
+      return { success: false, error: 'Registrations are currently closed' };
+    }
+
     const existing = await prisma.user.findFirst({
       where: { OR: [{ email: validation.data.email }, { username: validation.data.username }] },
     });

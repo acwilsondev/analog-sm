@@ -26,6 +26,6 @@ export async function uploadToS3(
     })
   );
 
-  // Return the public URL
-  return `${process.env.S3_ENDPOINT}/${bucket}/${fileName}`;
+  const publicBase = process.env.S3_PUBLIC_URL ?? process.env.S3_ENDPOINT;
+  return `${publicBase}/${bucket}/${fileName}`;
 }

@@ -21,8 +21,12 @@ export async function createPostAction(
   const userId = (session.user as any).id;
   const content = formData.get('content') as string;
   const files = formData.getAll('media') as File[];
+  const hasFiles = files.some(f => f.size > 0);
 
-  // 1. Validation (Schema only for content for now)
+  if (!content.trim() && !hasFiles) {
+    return { success: false, error: "Post cannot be empty" };
+  }
+
   const validation = CreatePostSchema.safeParse({ content });
   if (!validation.success) {
     return { success: false, error: "Validation failed", fieldErrors: validation.error.flatten().fieldErrors };
