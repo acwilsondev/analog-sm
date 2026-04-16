@@ -160,11 +160,12 @@ To maintain high developer velocity and reduce cognitive load, we strictly enfor
 
 ---
 
-### Summary Table for Quick Review
+### 6. Verification Mandate (The "Done" Standard)
 
-| Metric | Target | Hard Limit |
-| :--- | :--- | :--- |
-| **Function Length** | < 15 Lines | 30 Lines |
-| **File Length** | < 100 Lines | 200 Lines |
-| **Parameters** | 1 - 3 | 4 (Use an object) |
-| **Nesting Depth** | 1 - 2 levels | 3 levels |
+No feature, architectural update, or bug fix is considered **DONE** until the following verification steps are completed successfully:
+
+1.  **Smoke Test:** Run `scripts/smoke-test.sh` to confirm the entire stack (App, DB, Object Store) initializes and responds correctly.
+2.  **Unit Tests:** Ensure all tests in the **Functional Core** (`src/core/`) pass.
+3.  **Local Reproduction:** For bug fixes, verify the reported issue is resolved in a live containerized environment.
+
+A successful `curl` of the home page (HTTP 200) and confirmation of core UI elements is the minimum requirement for any significant change.

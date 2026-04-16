@@ -81,5 +81,6 @@ enum PostType {
 ## 6. Testing Strategy
 - **Unit Tests (Vitest):** Mandatory for the **Functional Core** (`src/core/`). 100% coverage goal.
 - **Integration Tests:** Server Actions using a containerized PostgreSQL instance (Testcontainers).
+- **Smoke Testing (Mandatory):** Running `scripts/smoke-test.sh` before any merge or feature completion to verify full-stack health (Docker + DB + App).
 - **E2E (Playwright):** Critical flows: Sign-up, Post Creation, Friend Request.
 t.
