@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { createPostAction } from '@/shell/actions/post';
 
-export default function PostForm({ userId }: { userId: string }) {
+export default function PostForm() {
   const [content, setContent] = useState('');
   const [isPending, setIsPending] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -23,7 +23,7 @@ export default function PostForm({ userId }: { userId: string }) {
       }
     }
 
-    const result = await createPostAction(userId, formData);
+    const result = await createPostAction(formData);
     if (result.success) {
       setContent('');
       if (fileInputRef.current) fileInputRef.current.value = '';

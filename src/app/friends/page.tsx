@@ -34,7 +34,6 @@ export default async function FriendsPage() {
                   <span className="font-medium">{req.requester.username}</span>
                 </div>
                 <FriendButton 
-                  currentUserId={currentUserId}
                   targetUserId={req.requesterId}
                   initialStatus="PENDING"
                   isReceiver={true}

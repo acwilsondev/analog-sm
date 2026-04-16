@@ -22,7 +22,16 @@ describe('Friendship Logic', () => {
     expect(transitionFriendship('PENDING', 'REJECT')).toBe('NONE');
   });
 
+  it('should transition from PENDING to NONE on CANCEL action', () => {
+    expect(transitionFriendship('PENDING', 'CANCEL')).toBe('NONE');
+  });
+
   it('should transition from ACCEPTED to NONE on CANCEL action', () => {
     expect(transitionFriendship('ACCEPTED', 'CANCEL')).toBe('NONE');
+  });
+
+  it('should return current status for invalid actions', () => {
+    expect(transitionFriendship('ACCEPTED', 'ACCEPT')).toBe('ACCEPTED');
+    expect(transitionFriendship('NONE', 'ACCEPT')).toBe('NONE');
   });
 });

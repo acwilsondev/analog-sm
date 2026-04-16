@@ -66,8 +66,32 @@ A feature, architectural update, or bug fix is not considered **DONE** until:
 3.  **Validation:** For bug fixes, verify the issue is resolved in a live containerized environment.
 4.  **Documentation:** Update relevant `docs/*.md` files if system behavior changes.
 
+## 4. Delimit Governance & Context
+
+All agents MUST use Delimit to maintain session continuity and respect project governance. This ensures that work remains visible and recoverable across different models (Claude, Gemini, etc.).
+
+### Session Lifecycle (Mandatory)
+- **Start of Session (Read):**
+    - Call `delimit_revive` to recover context from previous sessions.
+    - Call `delimit_ledger_context` to identify high-priority tasks and recent activity.
+    - Call `delimit_gov_health` to verify if the project environment is healthy and initialized.
+- **End of Session (Write):**
+    - Call `delimit_soul_capture` and `delimit_session_handoff` to preserve state for the next agent.
+    - Document all key decisions, blockers, and files changed in the handoff.
+
+### Task Management (Read/Write)
+- **Read:** Use `delimit_ledger_list` or `delimit_ledger_query` to understand the current project backlog.
+- **Write:** 
+    - Use `delimit_ledger_done` immediately after completing a task.
+    - Use `delimit_ledger_add` for any new bugs, tasks, or strategies identified during the session.
+
+### Governance Gates
+- **Pre-Commit:** Call `delimit_repo_diagnose` before proposing a git commit.
+- **UI Changes:** Call `delimit_design_validate_responsive` after CSS/UI edits.
+- **API Changes:** Call `delimit_lint` and `delimit_drift_check` after editing `docs/openapi.yaml`.
+
 ---
 
-## 4. Committing
+## 5. Committing
 - **Small Commits:** Keep commits focused on a single theme.
 - **Conventional Commits:** Use `feat(scope):`, `fix(scope):`, `refactor(scope):`, etc.

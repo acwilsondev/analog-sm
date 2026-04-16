@@ -12,6 +12,9 @@ t = tech debt
     - Content Creation (US3, US4, US5)
     - Social Connectivity (US6, US7, US8)
     - The Timeline (US9, US10)
+- (e) Admin Features
+- (e) Pagination
+- (e) Dark Mode
 - (e) Private Instance Toggle (invite-only)
 - (t) S3 Object Store Optimization
 - (e) Search Improvements

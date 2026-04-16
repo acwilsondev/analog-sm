@@ -15,9 +15,15 @@ prisma/migrations/
 # build
 dist/
 
+# coverage
+coverage/
+
 # misc
 .DS_Store
 *.pem
 npm-debug.log*
+*.png
+*.jpg
+*.jpeg
 
 plan.md

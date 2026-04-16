@@ -4,7 +4,7 @@ FROM node:20 AS base
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 # 2. Rebuild the source code only when needed
 FROM base AS builder

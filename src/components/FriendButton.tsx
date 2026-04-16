@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { sendRequestAction, handleRequestAction } from '@/shell/actions/friendship';
 
 interface FriendButtonProps {
-  currentUserId: string;
   targetUserId: string;
   initialStatus: 'PENDING' | 'ACCEPTED' | 'NONE';
   isReceiver?: boolean; // If true, the current user is the receiver of a pending request
@@ -12,7 +11,6 @@ interface FriendButtonProps {
 }
 
 export default function FriendButton({ 
-  currentUserId, 
   targetUserId, 
   initialStatus,
   isReceiver,
@@ -23,7 +21,7 @@ export default function FriendButton({
 
   const handleSendRequest = async () => {
     setLoading(true);
-    const res = await sendRequestAction(currentUserId, targetUserId);
+    const res = await sendRequestAction(targetUserId);
     if (res.success) setStatus('PENDING');
     setLoading(false);
   };
@@ -31,7 +29,7 @@ export default function FriendButton({
   const handleAccept = async () => {
     if (!requestId) return;
     setLoading(true);
-    const res = await handleRequestAction(currentUserId, requestId, 'ACCEPT');
+    const res = await handleRequestAction(requestId, 'ACCEPT');
     if (res.success) setStatus('ACCEPTED');
     setLoading(false);
   };

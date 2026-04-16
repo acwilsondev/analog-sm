@@ -7,10 +7,18 @@ import { ActionResult, Post } from '@/core/types';
 import { getPostById } from '@/shell/db/post';
 import { uploadToS3 } from '@/shell/media/s3';
 
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/shell/auth";
+
 export async function createPostAction(
-  userId: string,
   formData: FormData
 ): Promise<ActionResult<Post>> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const userId = (session.user as any).id;
   const content = formData.get('content') as string;
   const files = formData.getAll('media') as File[];
 
@@ -59,9 +67,14 @@ export async function createPostAction(
 }
 
 export async function deletePostAction(
-  userId: string,
   postId: string
 ): Promise<ActionResult<void>> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const userId = (session.user as any).id;
   try {
     const post = await prisma.post.findUnique({ where: { id: postId } });
     

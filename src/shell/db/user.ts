@@ -51,3 +51,13 @@ export const searchUsers = async (
   // Map each user (ideally in parallel or with a more efficient query)
   return Promise.all(users.map(u => getUserProfile(u.username, viewerId))) as any;
 };
+
+export const updateUserProfile = async (
+  userId: string,
+  data: { username?: string; bio?: string; avatarUrl?: string }
+): Promise<void> => {
+  await prisma.user.update({
+    where: { id: userId },
+    data,
+  });
+};

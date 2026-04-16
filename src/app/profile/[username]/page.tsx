@@ -5,7 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/shell/auth";
-import FriendButton from "@/components/FriendButton";
+import ProfileClient from "./ProfileClient";
 
 export const dynamic = 'force-dynamic';
 
@@ -47,25 +47,13 @@ export default async function ProfilePage({ params }: { params: { username: stri
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col items-center gap-4 text-center p-8 border rounded-xl bg-card shadow-sm">
-        <Avatar seed={user.id} username={user.username} avatarUrl={user.avatarUrl} size="xl" />
-        <div className="flex flex-col">
-          <h1 className="text-3xl font-bold tracking-tight">{user.username}</h1>
-          <p className="text-muted-foreground mt-2 max-w-md mx-auto">{user.bio || 'No bio provided'}</p>
-        </div>
-        
-        {!isOwnProfile && (
-          <div className="flex gap-4 mt-2">
-             <FriendButton 
-               currentUserId={currentUserId}
-               targetUserId={user.id}
-               initialStatus={initialStatus}
-               isReceiver={isReceiver}
-               requestId={friendship?.id}
-             />
-          </div>
-        )}
-      </div>
+      <ProfileClient 
+        user={user}
+        isOwnProfile={isOwnProfile}
+        initialStatus={initialStatus}
+        isReceiver={isReceiver}
+        requestId={friendship?.id}
+      />
 
       <div className="flex flex-col gap-6">
         <h2 className="text-xl font-bold px-1">Posts</h2>
