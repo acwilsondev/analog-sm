@@ -19,3 +19,5 @@ dist/
 .DS_Store
 *.pem
 npm-debug.log*
+
+plan.md
