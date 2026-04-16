@@ -11,8 +11,8 @@ We use a three-tier hierarchy to organize the roadmap and day-to-day development
 - **Definition:** High-level strategic goals that represent major milestones for the project.
 - **Artifact:** Tracked in `docs/roadmap.md`.
 - **Categorization:**
-    - `(e)` Enhancement: New features or improvements.
-    - `(t)` Tech Debt: Backend stability, refactoring, or infrastructure updates.
+  - `(e)` Enhancement: New features or improvements.
+  - `(t)` Tech Debt: Backend stability, refactoring, or infrastructure updates.
 
 ### 1.2 Epics (Functional)
 

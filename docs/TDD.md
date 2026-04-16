@@ -1,18 +1,23 @@
 # Technical Design Document (TDD): Analog SM (MVP)
 
 ## 1. System Overview
+
 Analog SM is a Next.js (App Router) application built on the **Functional Core, Imperative Shell** architectural pattern. It uses Prisma for data persistence, Tailwind CSS for styling, and NextAuth.js for session management.
 
 ## 2. Architecture: Functional Core, Imperative Shell
 
 ### 2.1 The Functional Core (`src/core/`)
+
 Pure logic that is 100% deterministic and free of I/O.
+
 - **`src/core/timeline.ts`**: Functions for sorting posts, filtering based on friendship status, and formatting temporal metadata.
 - **`src/core/friendship.ts`**: Pure state transitions for friend requests (e.g., `PENDING -> ACCEPTED`, `REJECTED`).
 - **`src/core/validation.ts`**: Zod schemas and validation logic for incoming post data and profile updates.
 
 ### 2.2 The Imperative Shell (`src/shell/`)
+
 Handles all side effects and I/O.
+
 - **`src/shell/db/`**: Prisma client and database repository functions.
 - **`src/shell/actions/`**: Next.js Server Actions that coordinate between the DB and the Core logic.
 - **`src/shell/media/`**: Logic for reading/writing image files to the local file system (Docker volume).
@@ -67,6 +72,7 @@ enum PostType {
 ```
 
 ## 4. Technology Stack
+
 - **Framework:** Next.js 14+ (App Router).
 - **Styling:** Tailwind CSS + Shadcn/UI (Radix primitives).
 - **Authentication:** Auth.js (NextAuth) with Credentials provider (Email/Password).
@@ -74,11 +80,13 @@ enum PostType {
 - **Storage:** S3-compatible (Minio, AWS S3, Cloudflare R2).
 
 ## 5. Deployment strategy
+
 - **Containerization:** `Dockerfile` (Multi-stage build) + `docker-compose.yml`.
 - **Service Mesh:** Services (App, Postgres, Minio) communicate over a private Docker network.
 - **Persistence:** Volumes used only for service data directories (Postgres `/var/lib/postgresql/data`, Minio `/data`).
 
 ## 6. Testing Strategy
+
 - **Unit Tests (Vitest):** Mandatory for the **Functional Core** (`src/core/`). 100% coverage goal.
 - **Integration Tests:** Server Actions using a containerized PostgreSQL instance (Testcontainers).
 - **Smoke Testing (Mandatory):** Running `scripts/smoke-test.sh` before any merge or feature completion to verify full-stack health (Docker + DB + App).
