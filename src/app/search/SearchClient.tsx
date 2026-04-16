@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { UserProfile } from '@/core/types';
 import { searchUsersAction } from '@/shell/actions/user';
 import Link from 'next/link';
+import Avatar from '@/components/Avatar';
 
 export default function SearchClient() {
   const [query, setQuery] = useState('');
@@ -37,7 +38,7 @@ export default function SearchClient() {
             href={`/profile/${user.username}`}
             className="flex items-center gap-3 p-4 border rounded-xl bg-card hover:bg-accent transition-colors"
           >
-            <div className="h-10 w-10 rounded-full bg-muted" />
+            <Avatar seed={user.id} username={user.username} avatarUrl={user.avatarUrl} />
             <div className="flex flex-col">
               <span className="font-semibold">{user.username}</span>
               <span className="text-xs text-muted-foreground">{user.bio || 'No bio'}</span>

@@ -1,5 +1,6 @@
 import { getUserProfile } from "@/shell/db/user";
 import prisma from "@/shell/db/client";
+import Avatar from "@/components/Avatar";
 import { formatDistanceToNow } from "date-fns";
 import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
@@ -47,7 +48,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-4 text-center p-8 border rounded-xl bg-card shadow-sm">
-        <div className="h-24 w-24 rounded-full bg-muted shadow-inner" />
+        <Avatar seed={user.id} username={user.username} avatarUrl={user.avatarUrl} size="xl" />
         <div className="flex flex-col">
           <h1 className="text-3xl font-bold tracking-tight">{user.username}</h1>
           <p className="text-muted-foreground mt-2 max-w-md mx-auto">{user.bio || 'No bio provided'}</p>
@@ -71,7 +72,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
         {posts.map((post) => (
           <article key={post.id} className="rounded-xl border bg-card shadow-sm overflow-hidden">
             <div className="flex items-center gap-3 p-4">
-              <div className="h-10 w-10 rounded-full bg-muted" />
+              <Avatar seed={post.author.id} username={post.author.username} avatarUrl={post.author.avatarUrl} />
               <div className="flex flex-col">
                 <span className="font-semibold">{post.author.username}</span>
                 <span className="text-xs text-muted-foreground">

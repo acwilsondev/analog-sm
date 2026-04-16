@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getFriends, getPendingRequests } from "@/shell/db/friendship";
 import Link from "next/link";
 import FriendButton from "@/components/FriendButton";
+import Avatar from "@/components/Avatar";
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +30,7 @@ export default async function FriendsPage() {
             {pendingRequests.map((req) => (
               <div key={req.id} className="flex items-center justify-between p-4 border rounded-xl bg-card shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-muted" />
+                  <Avatar seed={req.requester.id} username={req.requester.username} avatarUrl={req.requester.avatarUrl} />
                   <span className="font-medium">{req.requester.username}</span>
                 </div>
                 <FriendButton 
@@ -54,7 +55,7 @@ export default async function FriendsPage() {
               href={`/profile/${friend.username}`}
               className="flex items-center gap-3 p-4 border rounded-xl bg-card hover:bg-accent transition-colors"
             >
-              <div className="h-12 w-12 rounded-full bg-muted" />
+              <Avatar seed={friend.id} username={friend.username} avatarUrl={friend.avatarUrl} size="lg" />
               <div className="flex flex-col">
                 <span className="font-semibold">{friend.username}</span>
                 <span className="text-xs text-muted-foreground">{friend.bio || 'No bio'}</span>

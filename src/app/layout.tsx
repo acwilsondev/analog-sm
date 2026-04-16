@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/shell/auth";
+import Avatar from "@/components/Avatar";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -10,11 +13,15 @@ export const metadata: Metadata = {
   description: "A self-hostable Indie social media platform",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+  const userId = (session?.user as any)?.id as string | undefined;
+  const username = session?.user?.name;
+
   return (
     <html lang="en">
       <body className={`${inter.className} min-h-screen bg-background text-foreground`}>
@@ -25,7 +32,11 @@ export default function RootLayout({
               <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">Timeline</Link>
               <Link href="/friends" className="text-sm font-medium hover:text-primary transition-colors">Friends</Link>
               <Link href="/search" className="text-sm font-medium hover:text-primary transition-colors">Search</Link>
-              <div className="h-8 w-8 rounded-full bg-muted" />
+              {userId && username && (
+                <Link href={`/profile/${username}`}>
+                  <Avatar seed={userId} username={username} size="sm" />
+                </Link>
+              )}
             </nav>
           </div>
         </header>

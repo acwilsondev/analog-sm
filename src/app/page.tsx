@@ -4,6 +4,7 @@ import { authOptions } from "@/shell/auth";
 import { redirect } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import PostForm from "@/components/PostForm";
+import Avatar from "@/components/Avatar";
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,7 @@ export default async function TimelinePage() {
         {posts.map((post) => (
           <article key={post.id} className="rounded-xl border bg-card shadow-sm overflow-hidden">
             <div className="flex items-center gap-3 p-4">
-              <div className="h-10 w-10 rounded-full bg-muted" />
+              <Avatar seed={post.authorId} username={post.authorName} avatarUrl={post.authorAvatar} />
               <div className="flex flex-col">
                 <span className="font-semibold">{post.authorName}</span>
                 <span className="text-xs text-muted-foreground">
