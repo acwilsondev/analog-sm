@@ -8,18 +8,20 @@ e = enhancement
 t = tech debt
 s = security
 
-- (s) Security Sprint (Current known CRIT and HIGH issues).
 - (e) Private Instance Toggle (invite-only)
 - (t) S3 Object Store Optimization
 - (e) Search Improvements
+- (e) User blocking
+- (e) User unfriending
 - (e) Tag Browsing
 - (e) Photo Wall
+- (e) Click through to profile
+- (e) Markdown Support for Posts
 - (t) Automated Database Backups
 - (e) Post Export (JSON Download)
 
 ## Unplanned Features
 
-- (e) Markdown Support for Posts
 - (t) Internationalization (i18n)
 - (e) Polls
 
@@ -30,6 +32,7 @@ s = security
 
 ## Completed
 
+- (s) Security Sprint (Current known CRIT and HIGH issues).
 - (e) **MVP: The Digital Living Room**
   - Profile & Identity (US1, US2)
   - Content Creation (US3, US4, US5)

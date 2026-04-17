@@ -47,6 +47,7 @@ export const authOptions: AuthOptions = {
           id: user.id,
           email: user.email,
           name: user.username,
+          displayName: user.displayName,
           role: user.role,
         };
       },
@@ -73,18 +74,20 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.role = (user as any).role;
+        token.displayName = (user as any).displayName ?? null;
       } else if (token.sub) {
-        // Re-fetch role from DB so demotions take effect immediately,
+        // Re-fetch role and displayName from DB so changes take effect immediately,
         // and detect hard-deleted (banned) users.
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
-          select: { role: true },
+          select: { role: true, displayName: true },
         });
         if (!dbUser) {
           (token as any).invalid = true;
           return token;
         }
         token.role = dbUser.role;
+        token.displayName = dbUser.displayName ?? null;
       }
       return token;
     },
@@ -95,6 +98,7 @@ export const authOptions: AuthOptions = {
       if (session.user) {
         (session.user as any).id = token.sub;
         (session.user as any).role = token.role;
+        (session.user as any).displayName = token.displayName ?? null;
       }
       return session;
     },

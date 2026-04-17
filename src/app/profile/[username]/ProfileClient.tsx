@@ -29,7 +29,10 @@ export default function ProfileClient({
         <>
           <Avatar seed={user.id} username={user.username} avatarUrl={user.avatarUrl} size="xl" />
           <div className="flex flex-col">
-            <h1 className="text-3xl font-bold tracking-tight">{user.username}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{user.displayName ?? user.username}</h1>
+            {user.displayName && (
+              <p className="text-sm text-muted-foreground">@{user.username}</p>
+            )}
             <p className="text-muted-foreground mt-2 max-w-md mx-auto">{user.bio || 'No bio provided'}</p>
           </div>
           

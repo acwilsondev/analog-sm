@@ -37,6 +37,23 @@ export default function EditProfileForm({ user, onCancel }: EditProfileFormProps
   return (
     <form action={handleSubmit} className="flex flex-col gap-4 p-6 border rounded-xl bg-muted/30">
       <div className="flex flex-col gap-2">
+        <label htmlFor="displayName" className="text-sm font-semibold">Display Name</label>
+        <input
+          type="text"
+          id="displayName"
+          name="displayName"
+          defaultValue={user.displayName ?? ''}
+          placeholder={user.username}
+          maxLength={50}
+          className="p-2 border rounded-md bg-background"
+        />
+        <p className="text-xs text-muted-foreground">Shown in the UI. Can include spaces, emoji, etc. Falls back to username if left blank.</p>
+        {fieldErrors?.displayName && (
+          <p className="text-xs text-destructive">{fieldErrors.displayName[0]}</p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
         <label htmlFor="username" className="text-sm font-semibold">Username</label>
         <input
           type="text"
@@ -46,6 +63,7 @@ export default function EditProfileForm({ user, onCancel }: EditProfileFormProps
           className="p-2 border rounded-md bg-background"
           required
         />
+        <p className="text-xs text-muted-foreground">Used in your profile URL. Letters, numbers, underscores, and hyphens only.</p>
         {fieldErrors?.username && (
           <p className="text-xs text-destructive">{fieldErrors.username[0]}</p>
         )}

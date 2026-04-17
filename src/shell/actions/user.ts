@@ -37,10 +37,11 @@ export async function updateProfileAction(formData: FormData): Promise<ActionRes
 
   const userId = (session.user as any).id;
   const username = formData.get("username") as string;
+  const displayName = (formData.get("displayName") as string) || undefined;
   const bio = formData.get("bio") as string;
   const avatarFile = formData.get("avatar") as File | null;
 
-  const result = UpdateProfileSchema.safeParse({ username, bio });
+  const result = UpdateProfileSchema.safeParse({ username, displayName, bio });
   if (!result.success) {
     return {
       success: false,
@@ -64,6 +65,7 @@ export async function updateProfileAction(formData: FormData): Promise<ActionRes
 
     await updateUserProfile(userId, {
       username: result.data.username,
+      displayName: result.data.displayName ?? null,
       bio: result.data.bio,
       ...(avatarUrl ? { avatarUrl } : {}),
     });

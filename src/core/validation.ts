@@ -10,8 +10,8 @@ export const CreatePostSchema = z.object({
 
 export const UpdateProfileSchema = z.object({
   username: z.string().min(3).max(USERNAME_MAX_LENGTH)
-    .refine(v => !/\s/.test(v), "Username cannot contain spaces")
-    .refine(v => !/[/\\?#%]/.test(v), "Username cannot contain / \\ ? # or %"),
+    .regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, underscores, and hyphens"),
+  displayName: z.string().max(50).optional(),
   bio: z.string().max(160).optional(),
 });
 

@@ -23,6 +23,7 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id as string | undefined;
   const username = session?.user?.name;
+  const displayName = (session?.user as any)?.displayName as string | undefined;
   const userRole = (session?.user as any)?.role as string | undefined;
   const isAdmin = userRole === 'ADMIN' || userRole === 'OWNER';
 
@@ -42,7 +43,7 @@ export default async function RootLayout({
                 )}
                 <ThemeToggle />
                 {userId && username && (
-                  <UserMenu userId={userId} username={username} />
+                  <UserMenu userId={userId} username={username} displayName={displayName} />
                 )}
               </nav>
             </div>

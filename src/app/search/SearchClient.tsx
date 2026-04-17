@@ -25,7 +25,7 @@ export default function SearchClient() {
       <h1 className="text-2xl font-bold">Search Users</h1>
       <input
         type="text"
-        placeholder="Search by username..."
+        placeholder="Search by name or username..."
         className="p-3 border rounded-xl bg-card shadow-sm outline-none w-full"
         value={query}
         onChange={(e) => handleSearch(e.target.value)}
@@ -40,7 +40,8 @@ export default function SearchClient() {
           >
             <Avatar seed={user.id} username={user.username} avatarUrl={user.avatarUrl} />
             <div className="flex flex-col">
-              <span className="font-semibold">{user.username}</span>
+              <span className="font-semibold">{user.displayName ?? user.username}</span>
+              {user.displayName && <span className="text-xs text-muted-foreground">@{user.username}</span>}
               <span className="text-xs text-muted-foreground">{user.bio || 'No bio'}</span>
             </div>
           </Link>

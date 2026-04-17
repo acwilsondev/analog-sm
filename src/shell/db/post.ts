@@ -64,7 +64,7 @@ function mapPrismaPostToCore(post: any): Post {
   const base = {
     id: post.id,
     authorId: post.authorId,
-    authorName: post.author.username,
+    authorName: post.author.displayName ?? post.author.username,
     authorAvatar: post.author.avatarUrl || undefined,
     content: post.content,
     createdAt: post.createdAt,

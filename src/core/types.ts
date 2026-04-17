@@ -24,6 +24,7 @@ export type Post = TextPost | PhotoSetPost;
 export interface UserProfile {
   id: string;
   username: string;
+  displayName?: string;
   bio?: string;
   avatarUrl?: string;
   isFriend: boolean;

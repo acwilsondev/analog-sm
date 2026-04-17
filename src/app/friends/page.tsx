@@ -31,7 +31,7 @@ export default async function FriendsPage() {
               <div key={req.id} className="flex items-center justify-between p-4 border rounded-xl bg-card shadow-sm">
                 <div className="flex items-center gap-3">
                   <Avatar seed={req.requester.id} username={req.requester.username} avatarUrl={req.requester.avatarUrl} />
-                  <span className="font-medium">{req.requester.username}</span>
+                  <span className="font-medium">{req.requester.displayName ?? req.requester.username}</span>
                 </div>
                 <FriendButton 
                   targetUserId={req.requesterId}
@@ -56,7 +56,8 @@ export default async function FriendsPage() {
             >
               <Avatar seed={friend.id} username={friend.username} avatarUrl={friend.avatarUrl} size="lg" />
               <div className="flex flex-col">
-                <span className="font-semibold">{friend.username}</span>
+                <span className="font-semibold">{friend.displayName ?? friend.username}</span>
+                {friend.displayName && <span className="text-xs text-muted-foreground">@{friend.username}</span>}
                 <span className="text-xs text-muted-foreground">{friend.bio || 'No bio'}</span>
               </div>
             </Link>

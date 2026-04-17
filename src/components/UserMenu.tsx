@@ -8,10 +8,11 @@ import Avatar from '@/components/Avatar';
 interface UserMenuProps {
   userId: string;
   username: string;
+  displayName?: string;
   avatarUrl?: string;
 }
 
-export function UserMenu({ userId, username, avatarUrl }: UserMenuProps) {
+export function UserMenu({ userId, username, displayName, avatarUrl }: UserMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -35,7 +36,8 @@ export function UserMenu({ userId, username, avatarUrl }: UserMenuProps) {
         <div className="absolute right-0 mt-2 w-44 rounded-lg border bg-popover shadow-md z-50 overflow-hidden">
           <div className="px-3 py-2 border-b">
             <p className="text-xs text-muted-foreground">Signed in as</p>
-            <p className="text-sm font-semibold truncate">{username}</p>
+            <p className="text-sm font-semibold truncate">{displayName ?? username}</p>
+            {displayName && <p className="text-xs text-muted-foreground truncate">@{username}</p>}
           </div>
           <Link
             href={`/profile/${username}`}
