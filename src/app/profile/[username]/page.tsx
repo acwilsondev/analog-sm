@@ -9,15 +9,16 @@ import ProfileClient from "./ProfileClient";
 
 export const dynamic = 'force-dynamic';
 
-export default async function ProfilePage({ params }: { params: { username: string } }) {
+export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
     redirect("/login");
   }
 
+  const { username } = await params;
   const currentUserId = (session.user as any).id;
-  const user = await getUserProfile(params.username);
+  const user = await getUserProfile(username);
   
   if (!user) {
     return notFound();

@@ -9,11 +9,8 @@ export async function middleware(request: NextRequest) {
   const isPublic = PUBLIC_PATHS.some(p => pathname.startsWith(p));
   if (isPublic) return NextResponse.next();
 
-  const privateInstance = process.env.PRIVATE_INSTANCE === 'true';
-  if (!privateInstance) return NextResponse.next();
-
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
-  if (!token) {
+  if (!token || (token as any).invalid) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 

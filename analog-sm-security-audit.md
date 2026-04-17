@@ -28,7 +28,7 @@ The application has a clean architectural foundation (functional core / imperati
 
 ### CRIT-01 — Next.js 14.1.4 Has 18 Critical CVEs Including Authorization Bypass
 
-**Severity:** Critical  
+**Severity:** Critical  **Status:** ✅ Fixed (upgraded to 15.5.15)  
 **File:** `package.json:22`
 
 The pinned version `14.1.4` of Next.js has accumulated 18 critical advisories, including:
@@ -71,7 +71,7 @@ NextAuth uses this secret to sign JWT session tokens. An attacker who knows the 
 
 ### HIGH-01 — JWT Role Is Embedded at Login Time and Never Re-validated
 
-**Severity:** High  
+**Severity:** High  **Status:** ✅ Fixed (role re-fetched from DB on every JWT callback; banned/deleted users get invalid token)  
 **Files:** `src/shell/auth.ts:52-57`
 
 ```typescript
@@ -101,7 +101,7 @@ At minimum, add a `jti` claim, log bans in a `banned_tokens` table, and check it
 
 ### HIGH-02 — Middleware Auth Only Applies in PRIVATE_INSTANCE Mode
 
-**Severity:** High  
+**Severity:** High  **Status:** ✅ Fixed (PRIVATE_INSTANCE bypass removed; middleware always enforces auth)  
 **File:** `src/middleware.ts:12-13`
 
 ```typescript
@@ -119,7 +119,7 @@ Additionally, even in PRIVATE_INSTANCE mode, the middleware cannot protect serve
 
 ### MED-01 — No Cookie Security Configuration in NextAuth
 
-**Severity:** Medium  
+**Severity:** Medium  **Status:** ✅ Fixed (explicit httpOnly, sameSite: lax, secure in production)  
 **File:** `src/shell/auth.ts`
 
 NextAuth's default cookie flags depend on whether `NEXTAUTH_URL` uses HTTPS. In local dev with `http://localhost`, cookies are set without the `Secure` flag. There is no explicit configuration of `sameSite`, `secure`, or `httpOnly` flags:
@@ -737,18 +737,18 @@ As detailed in CRIT-03, there is zero server-side validation of image content. B
 
 | ID | Severity | Category | File | Issue | Status |
 |----|----------|----------|------|-------|--------|
-| CRIT-01 | Critical | Dependencies | `package.json:22` | Next.js 14.1.4 with 18 critical CVEs including auth bypass | Stage 2 |
+| CRIT-01 | Critical | Dependencies | `package.json:22` | Next.js 14.1.4 with 18 critical CVEs including auth bypass | ✅ Fixed |
 | CRIT-02 | Critical | Auth / Secrets | `.env:2`, `docker-compose.yml:8` | Weak placeholder NEXTAUTH_SECRET in committed files | ✅ Fixed |
 | CRIT-03 | Critical | File Upload | `src/shell/actions/post.ts:39-44`, `src/shell/media/s3.ts` | No file size limit, no server-side MIME validation, no magic byte check | ✅ Fixed |
 | CRIT-04 | Critical | Secrets / Infra | `docker-compose.yml:7-14`, `.env` | Default credentials for all services committed to repo | ✅ Fixed |
-| HIGH-01 | High | Auth | `src/shell/auth.ts:52-57` | JWT role not re-validated; banned users retain valid sessions | Stage 2 |
-| HIGH-02 | High | Auth | `src/middleware.ts:12-13` | Middleware only applies auth in PRIVATE_INSTANCE mode | Stage 2 |
+| HIGH-01 | High | Auth | `src/shell/auth.ts:52-57` | JWT role not re-validated; banned users retain valid sessions | ✅ Fixed |
+| HIGH-02 | High | Auth | `src/middleware.ts:12-13` | Middleware only applies auth in PRIVATE_INSTANCE mode | ✅ Fixed |
 | HIGH-03 | High | Authorization | `src/shell/actions/user.ts:11-16` | `searchUsersAction` and `getProfileAction` lack auth checks | ✅ Fixed |
 | HIGH-04 | High | DoS | `src/app/profile/[username]/page.tsx:42-47` | Unbounded profile post query — no pagination | ✅ Fixed |
 | HIGH-05 | High | File Upload | `src/shell/actions/post.ts:42`, `src/shell/actions/user.ts:44` | Client-supplied filename used in S3 key without sanitization | ✅ Fixed |
 | HIGH-06 | High | Infra | `entrypoint.sh:11` | `prisma db push --accept-data-loss` runs on every container start | Stage 3 |
 | HIGH-07 | High | Rate Limiting | All server actions | No rate limiting on login, registration, posting, or search | Stage 4 |
-| MED-01 | Medium | Auth | `src/shell/auth.ts` | No explicit cookie security flags configured | Stage 2 |
+| MED-01 | Medium | Auth | `src/shell/auth.ts` | No explicit cookie security flags configured | ✅ Fixed |
 | MED-02 | Medium | Authorization | `src/shell/actions/admin.ts:56-77` | No brute-force protection on admin promote password | Stage 4 |
 | MED-03 | Medium | Authorization | `src/components/FriendButton.tsx` | Client-side friendship state (server-side check is correct; pattern note) | Stage 4 |
 | MED-04 | Medium | Validation | `src/shell/actions/user.ts:11`, `src/shell/db/user.ts:46` | Search query unbounded length, no auth gate | ✅ Fixed |
