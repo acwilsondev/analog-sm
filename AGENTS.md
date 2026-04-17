@@ -109,3 +109,12 @@ All agents MUST use Delimit to maintain session continuity and respect project g
 
 - **Small Commits:** Keep commits focused on a single theme.
 - **Conventional Commits:** Use `feat(scope):`, `fix(scope):`, `refactor(scope):`, etc.
+
+## 6. Changelog
+
+`CHANGELOG.md` must be kept up to date. Any commit that changes observable behavior — new features, bug fixes, security patches, breaking changes, or notable dependency upgrades — requires a corresponding entry.
+
+- Add entries under `## [Unreleased]` at the top of the file.
+- Group entries by type: **Security**, **Added**, **Changed**, **Fixed**, **Removed**, **Deprecated**.
+- Each entry should state what changed, which files were affected, and why it matters (e.g. which vulnerability or issue it resolves).
+- When a release is cut, rename `[Unreleased]` to the version and date, and open a new empty `[Unreleased]` section above it.
