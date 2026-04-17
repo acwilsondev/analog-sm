@@ -1,6 +1,15 @@
 #!/bin/sh
 set -e
 
+# Fail loudly if critical secrets are missing or using known placeholder values
+case "${NEXTAUTH_SECRET}" in
+  ""|"placeholder-secret"|"your-secret-here"|"your-random-secret-here"|"changeme"|"secret")
+    echo "ERROR: NEXTAUTH_SECRET is not set or is using a known placeholder value."
+    echo "  Generate a secret with: openssl rand -hex 32"
+    exit 1
+    ;;
+esac
+
 echo "Waiting for postgres to be ready..."
 until node -e "const net = require('net'); const client = net.createConnection({ port: 5432, host: 'postgres' }, () => { client.end(); process.exit(0); }); client.on('error', () => process.exit(1));" > /dev/null 2>&1; do
   echo "Postgres is unavailable - sleeping"

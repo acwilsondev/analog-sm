@@ -6,6 +6,7 @@ import { CreatePostSchema } from '@/core/validation';
 import { ActionResult, Post } from '@/core/types';
 import { getPostById } from '@/shell/db/post';
 import { uploadToS3 } from '@/shell/media/s3';
+import { validateImageBuffer, sanitizeFileName, validateFileCount } from '@/shell/media/validate';
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/shell/auth";
@@ -23,6 +24,11 @@ export async function createPostAction(
   const files = formData.getAll('media') as File[];
   const hasFiles = files.some(f => f.size > 0);
 
+  const fileCountError = validateFileCount(files);
+  if (fileCountError) {
+    return { success: false, error: fileCountError };
+  }
+
   if (!content.trim() && !hasFiles) {
     return { success: false, error: "Post cannot be empty" };
   }
@@ -39,8 +45,13 @@ export async function createPostAction(
     for (const file of files) {
       if (file.size > 0) {
         const buffer = Buffer.from(await file.arrayBuffer());
-        const fileName = `${userId}-${Date.now()}-${file.name}`;
-        const url = await uploadToS3(buffer, fileName, file.type);
+        const fileValidation = validateImageBuffer(buffer);
+        if (!fileValidation.ok) {
+          return { success: false, error: fileValidation.error };
+        }
+        const safeName = sanitizeFileName(file.name);
+        const fileName = `${userId}-${Date.now()}-${safeName}`;
+        const url = await uploadToS3(buffer, fileName, fileValidation.mime);
         mediaUrls.push(url);
       }
     }

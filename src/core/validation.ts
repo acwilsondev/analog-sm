@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export const USERNAME_MAX_LENGTH = 20;
+
 export const CreatePostSchema = z.object({
   // min(1) is enforced in the action when there are no media files
   content: z.string().max(5000, "Post is too long"),
@@ -7,7 +9,7 @@ export const CreatePostSchema = z.object({
 });
 
 export const UpdateProfileSchema = z.object({
-  username: z.string().min(3).max(30)
+  username: z.string().min(3).max(USERNAME_MAX_LENGTH)
     .refine(v => !/\s/.test(v), "Username cannot contain spaces")
     .refine(v => !/[/\\?#%]/.test(v), "Username cannot contain / \\ ? # or %"),
   bio: z.string().max(160).optional(),

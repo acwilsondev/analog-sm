@@ -101,12 +101,18 @@ export async function adminDemoteUserAction(userId: string): Promise<ActionResul
   }
 }
 
+const ALLOWED_SETTING_KEYS = ['registrations_open'] as const;
+
 export async function adminSetGlobalSettingAction(
   key: string,
   value: string
 ): Promise<ActionResult<void>> {
   const session = await getAdminSession();
   if (!session) return { success: false, error: 'Unauthorized' };
+
+  if (!ALLOWED_SETTING_KEYS.includes(key as (typeof ALLOWED_SETTING_KEYS)[number])) {
+    return { success: false, error: 'Invalid setting key' };
+  }
 
   try {
     await prisma.globalSetting.upsert({

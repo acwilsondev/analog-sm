@@ -4,9 +4,10 @@ import prisma from "@/shell/db/client";
 import { hashPassword } from "@/core/auth";
 import { ActionResult } from "@/core/types";
 import { z } from "zod";
+import { USERNAME_MAX_LENGTH } from "@/core/validation";
 
 const RegisterSchema = z.object({
-  username: z.string().min(3).max(20),
+  username: z.string().min(3).max(USERNAME_MAX_LENGTH),
   email: z.string().email(),
   password: z.string().min(8),
 });

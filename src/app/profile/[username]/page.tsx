@@ -43,6 +43,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
     where: { authorId: user.id },
     include: { author: true, media: { orderBy: { order: 'asc' } } },
     orderBy: { createdAt: 'desc' },
+    take: 20,
   });
 
   return (
