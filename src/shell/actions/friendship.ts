@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import prisma from '@/shell/db/client';
 import { transitionFriendship, canSendFriendRequest } from '@/core/friendship';
 import { ActionResult } from '@/core/types';
+import { rateLimit } from '@/shell/ratelimit';
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/shell/auth";
@@ -17,9 +18,14 @@ export async function sendRequestAction(
   }
 
   const senderId = (session.user as any).id;
+
+  // 20 friend requests per hour per user
+  if (!rateLimit(`friendRequest:${senderId}`, 20, 60 * 60 * 1000)) {
+    return { success: false, error: 'Too many friend requests. Please slow down.' };
+  }
+
   const receiverId = targetUserId;
 
-  // 1. Fetch current status
   const existing = await prisma.friendship.findFirst({
     where: {
       OR: [
@@ -31,12 +37,10 @@ export async function sendRequestAction(
 
   const currentStatus = (existing?.status as any) || 'NONE';
 
-  // 2. Validate using Functional Core
   if (!canSendFriendRequest(senderId, receiverId, currentStatus)) {
     return { success: false, error: "Cannot send friend request" };
   }
 
-  // 3. Side Effect
   await prisma.friendship.upsert({
     where: { requesterId_receiverId: { requesterId: senderId, receiverId } },
     update: { status: 'PENDING' },
@@ -63,7 +67,8 @@ export async function handleRequestAction(
 
   if (!request) return { success: false, error: "Request not found" };
 
-  // Authorization check: only receiver can ACCEPT/REJECT, only requester can CANCEL
+  // The requestId is client-supplied but validated here against the session user —
+  // only the receiver can ACCEPT/REJECT, only the requester can CANCEL (MED-03).
   if (action === 'ACCEPT' || action === 'REJECT') {
     if (request.receiverId !== userId) {
       return { success: false, error: "Unauthorized" };

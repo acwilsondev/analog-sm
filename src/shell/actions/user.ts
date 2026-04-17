@@ -7,12 +7,19 @@ import { authOptions } from "@/shell/auth";
 import { UpdateProfileSchema } from "@/core/validation";
 import { uploadToS3 } from "@/shell/media/s3";
 import { validateImageBuffer, sanitizeFileName } from "@/shell/media/validate";
+import { rateLimit } from "@/shell/ratelimit";
+import { logError } from "@/shell/logger";
 import { revalidatePath } from "next/cache";
 
 export async function searchUsersAction(query: string): Promise<UserProfile[]> {
   const session = await getServerSession(authOptions);
   if (!session?.user) return [];
   if (typeof query !== 'string' || query.length < 2 || query.length > 50) return [];
+
+  const userId = (session.user as any).id;
+  // 30 searches per minute per user
+  if (!rateLimit(`search:${userId}`, 30, 60 * 1000)) return [];
+
   return dbSearchUsers(query);
 }
 
@@ -33,13 +40,12 @@ export async function updateProfileAction(formData: FormData): Promise<ActionRes
   const bio = formData.get("bio") as string;
   const avatarFile = formData.get("avatar") as File | null;
 
-  // Validate
   const result = UpdateProfileSchema.safeParse({ username, bio });
   if (!result.success) {
-    return { 
-      success: false, 
-      error: "Validation failed", 
-      fieldErrors: result.error.flatten().fieldErrors 
+    return {
+      success: false,
+      error: "Validation failed",
+      fieldErrors: result.error.flatten().fieldErrors
     };
   }
 
@@ -65,7 +71,7 @@ export async function updateProfileAction(formData: FormData): Promise<ActionRes
     revalidatePath(`/profile/${result.data.username}`);
     return { success: true, data: undefined };
   } catch (error) {
-    console.error("Failed to update profile:", error);
+    logError('updateProfileAction', error);
     return { success: false, error: "Failed to update profile. Please try again." };
   }
 }

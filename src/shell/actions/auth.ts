@@ -5,6 +5,8 @@ import { hashPassword } from "@/core/auth";
 import { ActionResult } from "@/core/types";
 import { z } from "zod";
 import { USERNAME_MAX_LENGTH } from "@/core/validation";
+import { headers } from "next/headers";
+import { rateLimit } from "@/shell/ratelimit";
 
 const RegisterSchema = z.object({
   username: z.string().min(3).max(USERNAME_MAX_LENGTH),
@@ -15,6 +17,13 @@ const RegisterSchema = z.object({
 export async function registerAction(
   formData: FormData
 ): Promise<ActionResult<void>> {
+  // 10 registration attempts per hour per IP
+  const h = await headers();
+  const ip = h.get('x-forwarded-for')?.split(',')[0].trim() ?? h.get('x-real-ip') ?? 'unknown';
+  if (!rateLimit(`register:${ip}`, 10, 60 * 60 * 1000)) {
+    return { success: false, error: 'Too many registration attempts. Please try again later.' };
+  }
+
   const username = formData.get("username") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;

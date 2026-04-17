@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/shell/db/client";
+import { rateLimit } from "@/shell/ratelimit";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -11,7 +12,16 @@ export const authOptions: AuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
+        // 10 login attempts per 15 minutes per IP
+        const ip =
+          (req?.headers?.['x-forwarded-for'] as string)?.split(',')[0].trim() ??
+          (req?.headers?.['x-real-ip'] as string) ??
+          'unknown';
+        if (!rateLimit(`login:${ip}`, 10, 15 * 60 * 1000)) {
+          throw new Error('Too many login attempts. Please try again later.');
+        }
+
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
@@ -62,17 +72,15 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        // Initial sign-in: embed role from the authorize() return value
         token.role = (user as any).role;
       } else if (token.sub) {
-        // Subsequent requests: re-fetch role from DB so demotions take effect
-        // immediately, and detect hard-deleted (banned) users.
+        // Re-fetch role from DB so demotions take effect immediately,
+        // and detect hard-deleted (banned) users.
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
           select: { role: true },
         });
         if (!dbUser) {
-          // User was deleted/banned — mark token invalid
           (token as any).invalid = true;
           return token;
         }
@@ -82,8 +90,6 @@ export const authOptions: AuthOptions = {
     },
     async session({ session, token }) {
       if ((token as any).invalid) {
-        // Banned/deleted user — return a session with no user so all
-        // session?.user guards in server actions and pages fail correctly.
         return { ...session, user: undefined } as typeof session;
       }
       if (session.user) {

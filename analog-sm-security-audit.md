@@ -200,7 +200,7 @@ There is no `take` or pagination on the profile page post query. A user who crea
 
 ### MED-02 — Admin Can Promote Any Regular User Without Rate Limiting
 
-**Severity:** Medium  
+**Severity:** Medium  **Status:** ✅ Fixed (covered by HIGH-07 rate limit on promote action)  
 **File:** `src/shell/actions/admin.ts:56-77`
 
 The `adminPromoteUserAction` requires the calling admin's password for confirmation, which is good. However, there is no rate limiting or lockout on failed password attempts in this action. An attacker who gains ADMIN access through another vector (e.g., compromised account) could brute-force the OWNER's password confirmation to promote themselves or an accomplice.
@@ -211,7 +211,7 @@ The `adminPromoteUserAction` requires the calling admin's password for confirmat
 
 ### MED-03 — Friendship Status Is Trusted from Client-Side State
 
-**Severity:** Medium  
+**Severity:** Medium  **Status:** ✅ Fixed (comment added to `handleRequestAction` documenting the server-side validation)  
 **File:** `src/components/FriendButton.tsx:19`, `src/app/friends/page.tsx:38-41`
 
 The `FriendButton` component in the friends page passes `isReceiver={true}` as a hardcoded prop, and the `requestId` is passed from server-rendered data. However, in `ProfileClient.tsx`, the `isReceiver` prop is derived server-side and passed down, so the authorization ultimately happens in `handleRequestAction`. The server-side check is correct (line 67-75 of `friendship.ts`), but the reliance on client-passed `requestId` means the client could theoretically call `handleRequestAction` with any `requestId` — the authorization check in the action correctly validates receiver/requester identity, so this is mitigated, but the pattern warrants documentation.
@@ -222,7 +222,7 @@ The `FriendButton` component in the friends page passes `isReceiver={true}` as a
 
 ### LOW-01 — Admin Demotion Does Not Prevent Re-promotion Race
 
-**Severity:** Low  
+**Severity:** Low  **Status:** ✅ Fixed (promote and demote wrapped in `prisma.$transaction` with read-check-write)  
 **File:** `src/shell/actions/admin.ts:80-101`
 
 The demote and promote actions are not atomic. A concurrent promote call and demote call for the same user could result in unexpected final state depending on DB transaction ordering. This is a low-probability edge case for a self-hosted platform but worth noting.
@@ -416,7 +416,7 @@ No use of `dangerouslySetInnerHTML` was found. React's JSX escaping handles user
 
 ### MED-06 — Stored SVG XSS via File Upload (if SVG is Permitted)
 
-**Severity:** Medium  
+**Severity:** Medium  **Status:** ✅ Fixed (SVGs blocked at upload by magic-byte check; CSP `img-src` and `X-Content-Type-Options: nosniff` added via `next.config.mjs`; `next/image` with domain allowlist for Avatar)  
 **Files:** `src/shell/actions/post.ts`, `src/shell/media/s3.ts`, `src/components/MediaGrid.tsx`
 
 Directly related to CRIT-03. If a user uploads an SVG file, MinIO will serve it with `Content-Type: image/svg+xml`. When displayed via `<img src="...">` in React, modern browsers do NOT execute SVG scripts in `<img>` tags — this is safe for direct image display. However, if a user clicks through to the lightbox and the browser opens the raw URL, or if the `src` attribute is used in a context that triggers direct navigation, script execution becomes possible.
@@ -429,7 +429,7 @@ Additionally, avatar and post media URLs are stored in the database and rendered
 
 ### LOW-03 — Avatar URL Stored From S3 Is Rendered Without Validation
 
-**Severity:** Low  
+**Severity:** Low  **Status:** ✅ Fixed (switched to `next/image` with `remotePatterns` domain allowlist in `next.config.mjs`)  
 **Files:** `src/components/Avatar.tsx:16-17`, `src/shell/db/user.ts:31`
 
 ```typescript
@@ -629,7 +629,7 @@ The smoke test overrides the container user to `root` to run commands. The Docke
 
 ### MED-10 — Detailed Error Logged to Console in Production
 
-**Severity:** Medium  
+**Severity:** Medium  **Status:** ✅ Fixed (structured logger in `src/shell/logger.ts`; production logs JSON with error message + correlation ID, dev logs full error)  
 **Files:** `src/shell/actions/post.ts:68`, `src/shell/actions/user.ts:56`
 
 ```typescript
@@ -651,7 +651,7 @@ While the error message returned to the client is generic (good), the full error
 
 ### LOW-05 — Registration Reveals Username/Email Enumeration
 
-**Severity:** Low  
+**Severity:** Low  **Status:** ✅ Fixed (mitigated by IP-based rate limit on registration; error message already generic)  
 **File:** `src/shell/actions/auth.ts:36-38`
 
 ```typescript
@@ -670,7 +670,7 @@ A single generic message "User already exists" is returned whether the email or 
 
 ### HIGH-07 — No Rate Limiting Anywhere in the Application
 
-**Severity:** High  
+**Severity:** High  **Status:** ✅ Fixed (in-memory sliding window limiter; login 10/15m by IP, register 10/hr by IP, posts 20/hr by user, search 30/min by user, promote 5/15m by user, friend requests 20/hr by user)  
 **Scope:** All server actions and API routes
 
 The SECURITY.md spec states: "Basic rate-limiting for the `createPost` and `login` actions to prevent brute-force and spam attacks." This is not implemented anywhere in the codebase.
@@ -747,22 +747,22 @@ As detailed in CRIT-03, there is zero server-side validation of image content. B
 | HIGH-04 | High | DoS | `src/app/profile/[username]/page.tsx:42-47` | Unbounded profile post query — no pagination | ✅ Fixed |
 | HIGH-05 | High | File Upload | `src/shell/actions/post.ts:42`, `src/shell/actions/user.ts:44` | Client-supplied filename used in S3 key without sanitization | ✅ Fixed |
 | HIGH-06 | High | Infra | `entrypoint.sh:11` | `prisma db push --accept-data-loss` runs on every container start | ✅ Fixed |
-| HIGH-07 | High | Rate Limiting | All server actions | No rate limiting on login, registration, posting, or search | Stage 4 |
+| HIGH-07 | High | Rate Limiting | All server actions | No rate limiting on login, registration, posting, or search | ✅ Fixed |
 | MED-01 | Medium | Auth | `src/shell/auth.ts` | No explicit cookie security flags configured | ✅ Fixed |
-| MED-02 | Medium | Authorization | `src/shell/actions/admin.ts:56-77` | No brute-force protection on admin promote password | Stage 4 |
-| MED-03 | Medium | Authorization | `src/components/FriendButton.tsx` | Client-side friendship state (server-side check is correct; pattern note) | Stage 4 |
+| MED-02 | Medium | Authorization | `src/shell/actions/admin.ts:56-77` | No brute-force protection on admin promote password | ✅ Fixed |
+| MED-03 | Medium | Authorization | `src/components/FriendButton.tsx` | Client-side friendship state (server-side check is correct; pattern note) | ✅ Fixed |
 | MED-04 | Medium | Validation | `src/shell/actions/user.ts:11`, `src/shell/db/user.ts:46` | Search query unbounded length, no auth gate | ✅ Fixed |
 | MED-05 | Medium | Validation | `src/shell/actions/admin.ts:104-122` | `adminSetGlobalSettingAction` accepts arbitrary key names | ✅ Fixed |
-| MED-06 | Medium | XSS | `src/shell/actions/post.ts`, `src/shell/media/s3.ts` | SVG uploads would be served from public CDN without sandboxing | Stage 4 |
+| MED-06 | Medium | XSS | `src/shell/actions/post.ts`, `src/shell/media/s3.ts` | SVG uploads would be served from public CDN without sandboxing | ✅ Fixed |
 | MED-07 | Medium | Infra | `docker-compose.yml:31-32` | MinIO admin console (9001) exposed with default credentials | ✅ Fixed |
 | MED-08 | Medium | Infra | `docker-compose.yml:19-23` | Weak database credentials | ✅ Fixed |
 | MED-09 | Medium | Infra | `Dockerfile:1` | Non-pinned `node:20` base image | ✅ Fixed |
-| MED-10 | Medium | Info Disclosure | `src/shell/actions/post.ts:68`, `src/shell/actions/user.ts:56` | Full exception objects logged in production | Stage 4 |
-| LOW-01 | Low | Authorization | `src/shell/actions/admin.ts` | Promote/demote not in a database transaction | Stage 4 |
+| MED-10 | Medium | Info Disclosure | `src/shell/actions/post.ts:68`, `src/shell/actions/user.ts:56` | Full exception objects logged in production | ✅ Fixed |
+| LOW-01 | Low | Authorization | `src/shell/actions/admin.ts` | Promote/demote not in a database transaction | ✅ Fixed |
 | LOW-02 | Low | Validation | `src/shell/actions/auth.ts:9` vs `src/core/validation.ts:10` | Inconsistent username max length | ✅ Fixed |
-| LOW-03 | Low | XSS | `src/components/Avatar.tsx:16-17` | Avatar URL rendered without validation or domain restriction | Stage 4 |
+| LOW-03 | Low | XSS | `src/components/Avatar.tsx:16-17` | Avatar URL rendered without validation or domain restriction | ✅ Fixed |
 | LOW-04 | Low | Infra | `scripts/smoke-test.sh:27,30` | Smoke test runs container commands as root | ✅ Fixed |
-| LOW-05 | Low | Info Disclosure | `src/shell/actions/auth.ts:36-38` | Registration enables email/username enumeration | Stage 4 |
+| LOW-05 | Low | Info Disclosure | `src/shell/actions/auth.ts:36-38` | Registration enables email/username enumeration | ✅ Fixed |
 | INFO-01 | Info | SQL Injection | All `src/shell/db/*.ts` | No raw queries; Prisma parameterizes everything — no finding | N/A |
 | INFO-02 | Info | XSS | All `src/**/*.tsx` | No `dangerouslySetInnerHTML` usage — no finding | N/A |
 | INFO-03 | Info | CSRF | Next.js Server Actions | Built-in origin checking provides CSRF protection | N/A |

@@ -7,6 +7,8 @@ import { ActionResult, Post } from '@/core/types';
 import { getPostById } from '@/shell/db/post';
 import { uploadToS3 } from '@/shell/media/s3';
 import { validateImageBuffer, sanitizeFileName, validateFileCount } from '@/shell/media/validate';
+import { rateLimit } from '@/shell/ratelimit';
+import { logError } from '@/shell/logger';
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/shell/auth";
@@ -20,6 +22,12 @@ export async function createPostAction(
   }
 
   const userId = (session.user as any).id;
+
+  // 20 posts per hour per user
+  if (!rateLimit(`createPost:${userId}`, 20, 60 * 60 * 1000)) {
+    return { success: false, error: 'You are posting too fast. Please slow down.' };
+  }
+
   const content = formData.get('content') as string;
   const files = formData.getAll('media') as File[];
   const hasFiles = files.some(f => f.size > 0);
@@ -41,7 +49,6 @@ export async function createPostAction(
   try {
     const mediaUrls: string[] = [];
 
-    // 2. Upload Files to S3 (Shell Side Effect)
     for (const file of files) {
       if (file.size > 0) {
         const buffer = Buffer.from(await file.arrayBuffer());
@@ -56,7 +63,6 @@ export async function createPostAction(
       }
     }
 
-    // 3. Create Post in DB
     const post = await prisma.post.create({
       data: {
         authorId: userId,
@@ -73,10 +79,10 @@ export async function createPostAction(
 
     const result = await getPostById(post.id);
     revalidatePath('/');
-    
+
     return { success: true, data: result! };
   } catch (e) {
-    console.error(e);
+    logError('createPostAction', e);
     return { success: false, error: "Failed to create post" };
   }
 }
@@ -92,14 +98,14 @@ export async function deletePostAction(
   const userId = (session.user as any).id;
   try {
     const post = await prisma.post.findUnique({ where: { id: postId } });
-    
+
     if (!post || post.authorId !== userId) {
       return { success: false, error: "Unauthorized" };
     }
 
     await prisma.post.delete({ where: { id: postId } });
     revalidatePath('/');
-    
+
     return { success: true, data: undefined };
   } catch (e) {
     return { success: false, error: "Failed to delete post" };
