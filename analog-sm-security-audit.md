@@ -504,7 +504,7 @@ The `.env` file is gitignored, but the `docker-compose.yml` is committed to vers
 
 ### MED-07 — MinIO Admin Console Exposed on Port 9001 with Default Credentials
 
-**Severity:** Medium  
+**Severity:** Medium  **Status:** ✅ Fixed (both ports bound to `127.0.0.1` only)  
 **File:** `docker-compose.yml:31-32`
 
 ```yaml
@@ -571,7 +571,7 @@ The `glob` command injection and `minimatch` ReDoS are in devDependencies and un
 
 ### HIGH-06 — `prisma db push --accept-data-loss` in Production Entrypoint
 
-**Severity:** High  
+**Severity:** High  **Status:** ✅ Fixed (`--accept-data-loss` removed; push now fails loudly on breaking schema changes)  
 **File:** `entrypoint.sh:11`
 
 ```sh
@@ -590,7 +590,7 @@ The `glob` command injection and `minimatch` ReDoS are in devDependencies and un
 
 ### MED-09 — Node.js Base Image Is Not Pinned to a Specific Digest
 
-**Severity:** Medium  
+**Severity:** Medium  **Status:** ✅ Fixed (pinned to `node:20-alpine@sha256:fb4cd12c...`, reduced attack surface)  
 **File:** `Dockerfile:1`
 
 ```dockerfile
@@ -611,7 +611,7 @@ And use `node:20-alpine` to reduce attack surface and image size.
 
 ### LOW-04 — Smoke Test Runs as Root Inside Container
 
-**Severity:** Low  
+**Severity:** Low  **Status:** ✅ Fixed (`-u root` removed; redundant `db push` step removed; seed runs as `nextjs` user)  
 **File:** `scripts/smoke-test.sh:27,30`
 
 ```bash
@@ -746,22 +746,22 @@ As detailed in CRIT-03, there is zero server-side validation of image content. B
 | HIGH-03 | High | Authorization | `src/shell/actions/user.ts:11-16` | `searchUsersAction` and `getProfileAction` lack auth checks | ✅ Fixed |
 | HIGH-04 | High | DoS | `src/app/profile/[username]/page.tsx:42-47` | Unbounded profile post query — no pagination | ✅ Fixed |
 | HIGH-05 | High | File Upload | `src/shell/actions/post.ts:42`, `src/shell/actions/user.ts:44` | Client-supplied filename used in S3 key without sanitization | ✅ Fixed |
-| HIGH-06 | High | Infra | `entrypoint.sh:11` | `prisma db push --accept-data-loss` runs on every container start | Stage 3 |
+| HIGH-06 | High | Infra | `entrypoint.sh:11` | `prisma db push --accept-data-loss` runs on every container start | ✅ Fixed |
 | HIGH-07 | High | Rate Limiting | All server actions | No rate limiting on login, registration, posting, or search | Stage 4 |
 | MED-01 | Medium | Auth | `src/shell/auth.ts` | No explicit cookie security flags configured | ✅ Fixed |
 | MED-02 | Medium | Authorization | `src/shell/actions/admin.ts:56-77` | No brute-force protection on admin promote password | Stage 4 |
 | MED-03 | Medium | Authorization | `src/components/FriendButton.tsx` | Client-side friendship state (server-side check is correct; pattern note) | Stage 4 |
 | MED-04 | Medium | Validation | `src/shell/actions/user.ts:11`, `src/shell/db/user.ts:46` | Search query unbounded length, no auth gate | ✅ Fixed |
 | MED-05 | Medium | Validation | `src/shell/actions/admin.ts:104-122` | `adminSetGlobalSettingAction` accepts arbitrary key names | ✅ Fixed |
-| MED-06 | Medium | XSS | `src/shell/actions/post.ts`, `src/shell/media/s3.ts` | SVG uploads would be served from public CDN without sandboxing | Stage 3 |
-| MED-07 | Medium | Infra | `docker-compose.yml:31-32` | MinIO admin console (9001) exposed with default credentials | Stage 3 |
-| MED-08 | Medium | Infra | `docker-compose.yml:19-23` | Weak database credentials | Stage 3 |
-| MED-09 | Medium | Infra | `Dockerfile:1` | Non-pinned `node:20` base image | Stage 3 |
+| MED-06 | Medium | XSS | `src/shell/actions/post.ts`, `src/shell/media/s3.ts` | SVG uploads would be served from public CDN without sandboxing | Stage 4 |
+| MED-07 | Medium | Infra | `docker-compose.yml:31-32` | MinIO admin console (9001) exposed with default credentials | ✅ Fixed |
+| MED-08 | Medium | Infra | `docker-compose.yml:19-23` | Weak database credentials | ✅ Fixed |
+| MED-09 | Medium | Infra | `Dockerfile:1` | Non-pinned `node:20` base image | ✅ Fixed |
 | MED-10 | Medium | Info Disclosure | `src/shell/actions/post.ts:68`, `src/shell/actions/user.ts:56` | Full exception objects logged in production | Stage 4 |
 | LOW-01 | Low | Authorization | `src/shell/actions/admin.ts` | Promote/demote not in a database transaction | Stage 4 |
 | LOW-02 | Low | Validation | `src/shell/actions/auth.ts:9` vs `src/core/validation.ts:10` | Inconsistent username max length | ✅ Fixed |
 | LOW-03 | Low | XSS | `src/components/Avatar.tsx:16-17` | Avatar URL rendered without validation or domain restriction | Stage 4 |
-| LOW-04 | Low | Infra | `scripts/smoke-test.sh:27,30` | Smoke test runs container commands as root | Stage 3 |
+| LOW-04 | Low | Infra | `scripts/smoke-test.sh:27,30` | Smoke test runs container commands as root | ✅ Fixed |
 | LOW-05 | Low | Info Disclosure | `src/shell/actions/auth.ts:36-38` | Registration enables email/username enumeration | Stage 4 |
 | INFO-01 | Info | SQL Injection | All `src/shell/db/*.ts` | No raw queries; Prisma parameterizes everything — no finding | N/A |
 | INFO-02 | Info | XSS | All `src/**/*.tsx` | No `dangerouslySetInnerHTML` usage — no finding | N/A |

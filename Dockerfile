@@ -1,4 +1,6 @@
-FROM node:20 AS base
+FROM node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 AS base
+# openssl is required by the Prisma query engine on Alpine (musl)
+RUN apk add --no-cache openssl
 
 # 1. Install dependencies only when needed
 FROM base AS deps

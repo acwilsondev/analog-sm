@@ -17,7 +17,7 @@ until node -e "const net = require('net'); const client = net.createConnection({
 done
 
 echo "Running database migrations..."
-./node_modules/.bin/prisma db push --accept-data-loss
+./node_modules/.bin/prisma db push
 
 echo "Ensuring S3 bucket exists..."
 node -e "

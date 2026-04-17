@@ -11,7 +11,7 @@ docker-compose up -d --build > /dev/null 2>&1
 # 2. Wait for Readiness
 echo "⏳ Waiting for services to be ready..."
 RETRIES=30
-until docker-compose exec -T postgres pg_isready -U user -d analogdb > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
+until docker-compose exec -T postgres pg_isready -U "${POSTGRES_USER:-analoguser}" -d "${POSTGRES_DB:-analogdb}" > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
   sleep 2
   RETRIES=$((RETRIES-1))
 done
@@ -21,22 +21,18 @@ if [ $RETRIES -eq 0 ]; then
   exit 1
 fi
 
-# 3. Initialize DB
-echo "🛠 Initializing database schema..."
-docker-compose exec -T -u root app ./node_modules/.bin/prisma db push --accept-data-loss > /dev/null 2>&1
-
-# 4. Seed DB
+# 3. Seed DB (schema is already applied by entrypoint.sh on app start)
 echo "🌱 Seeding database..."
-docker-compose exec -T -u root app npx prisma@5.22.0 db seed > /dev/null 2>&1
+docker-compose exec -T app ./node_modules/.bin/prisma db seed > /dev/null 2>&1
 
-# 5. Verify Web App
+# 4. Verify Web App
 echo "🔍 Verifying Web Application..."
 # Check root - following redirects
 STATUS_CODE=$(curl -s -L -o /dev/null -w "%{http_code}" http://localhost:3000)
 
 if [ "$STATUS_CODE" -eq 200 ]; then
   echo "✅ Success: Web app (or login redirect) returned HTTP 200."
-  
+
   # Check for core UI elements (should find them on login page if redirected)
   HTML=$(curl -s -L http://localhost:3000)
   if echo "$HTML" | grep -q "Analog SM"; then
